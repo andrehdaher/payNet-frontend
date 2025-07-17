@@ -20,6 +20,8 @@ export default function TransferForm() {
     amount: "",
     date: "",
   });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,10 +30,13 @@ export default function TransferForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+      if (isSubmitting) return; // حماية إضافية
+      setIsSubmitting(true);
+
     const token = localStorage.getItem("token");
     const decoded = parseJwt(token);
 
-    await axios.post("http://localhost:5000/api/saveBalance/haram", formData, {
+    await axios.post("https://paynet-cdji.onrender.com/api/saveBalance/haram", formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -47,6 +52,8 @@ export default function TransferForm() {
       amount: "",
       date: "",
     });
+    setIsSubmitting(false); // إعادة التفعيل
+
   };
 
   return (
@@ -134,7 +141,7 @@ export default function TransferForm() {
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
           >
-            تحويل
+  {isSubmitting ? "جاري التحويل..." : "تحويل"}
           </button>
         </form>
       </div>

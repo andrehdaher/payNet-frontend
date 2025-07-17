@@ -28,7 +28,7 @@ const Navbar = () => {
 
     const fetchBalance = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/user/balance", {
+        const res = await axios.get("https://paynet-cdji.onrender.com/api/user/balance", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setBalance(res.data.balance);

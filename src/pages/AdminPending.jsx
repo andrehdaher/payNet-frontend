@@ -11,7 +11,7 @@ export default function AdminPending() {
 
   const fetchPending = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/admin/pending");
+      const res = await axios.get("https://paynet-cdji.onrender.com/api/admin/pending");
       setPayments(res.data);
     } catch (error) {
       console.error("فشل في جلب البيانات", error);
@@ -26,7 +26,7 @@ export default function AdminPending() {
     if (!confirmed) return;
 
     try {
-      await axios.patch(`http://localhost:5000/api/admin/confirm/${id}`);
+      await axios.patch(`https://paynet-cdji.onrender.com/api/admin/confirm/${id}`);
       fetchPending(); // إعادة التحديث بعد التأكيد
     } catch (error) {
       alert("حدث خطأ أثناء تأكيد التسديد");
@@ -38,7 +38,7 @@ export default function AdminPending() {
   if (!reason) return;
 
   try{
-    await axios.post(`http://localhost:5000/api/admin/reject/${payment._id}`, {
+    await axios.post(`https://paynet-cdji.onrender.com/api/admin/reject/${payment._id}`, {
       email :payment.email,
       amount: payment.amount,
       reason,

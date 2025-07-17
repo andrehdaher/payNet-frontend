@@ -26,7 +26,7 @@ export default function FinancialStatement() {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "http://localhost:5000/api/admin/user/confirmed",
+        "https://paynet-cdji.onrender.com/api/admin/user/confirmed",
         {
           headers: {
             Authorization: `Bearer ${token}`,

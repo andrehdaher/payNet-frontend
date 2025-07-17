@@ -12,7 +12,7 @@ export default function PaymentStatement() {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          "http://localhost:5000/api/saveBalance/all-admin",
+          "https://paynet-cdji.onrender.com/api/saveBalance/all-admin",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -34,7 +34,7 @@ export default function PaymentStatement() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "http://localhost:5000/api/admin/confirm-payment",
+        "https://paynet-cdji.onrender.com/api/admin/confirm-payment",
         {
           email: payment.name, // أو يمكن تغيير الحقل حسب اسم الحقل الحقيقي للبريد
           amount: payment.amount,

@@ -12,6 +12,8 @@ export default function PayWater() {
   }
 
   const [landline, setLandline] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedSpeed, setSelectedSpeed] = useState("");
   const [amountToPay, setAmountToPay] = useState("");
@@ -40,13 +42,16 @@ export default function PayWater() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+      if (isSubmitting) return; // حماية إضافية
+      setIsSubmitting(true);
+
     const token = localStorage.getItem("token");
     const decoded = parseJwt(token);
     const email = decoded?.email;
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/payment/internet",
+        "https://paynet-cdji.onrender.com/api/payment/internet",
         { amount: amountToPay },
         {
           headers: {
@@ -55,7 +60,7 @@ export default function PayWater() {
         }
       );
       await axios.post(
-        "http://localhost:5000/api/savepayment/internet",
+        "https://paynet-cdji.onrender.com/api/savepayment/internet",
         {
           landline,
           company: selectedCompany,
@@ -80,7 +85,9 @@ export default function PayWater() {
       // يمكنك إعادة التوجيه أو تحديث الرصيد من السياق
     } catch (err) {
       alert(err.response?.data?.message || "حدث خطأ");
-    }
+    }finally {
+    setIsSubmitting(false); // إعادة التفعيل
+  }
   };
   return (
     <div>
@@ -213,7 +220,7 @@ export default function PayWater() {
         : "bg-gray-300 text-gray-500 cursor-not-allowed"
     }`}
           >
-            تسديد الفاتورة
+  {isSubmitting ? "جاري التسديد..." : "تسديد الفاتورة"}
           </button>
         </form>
       </div>
