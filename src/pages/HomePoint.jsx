@@ -10,7 +10,7 @@ import { io } from "socket.io-client";
 
 
 
-const Home = () => {
+const HomePoint = () => {
   const navigate = useNavigate();
   const vantaRef = useRef(null);
   const [vantaEffect, setVantaEffect] = useState(null);
@@ -19,7 +19,7 @@ const Home = () => {
       
       
 useEffect(()=>{
-  const newSocket = io("http://localhost:5000");
+  const newSocket = io("https://paynet-1.onrender.com");
 
   newSocket.on("connect" , ()=>{
     console.log('تم الاتصال بالسيرفر')
@@ -102,4 +102,4 @@ useEffect(()=>{
   );
 };
 
-export default Home;
+export default HomePoint;

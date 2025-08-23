@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useRef} from "react";
 import axios from "axios";
 import Navbar from "../components/NavBar";
 
@@ -10,6 +10,28 @@ export default function PendingPayments() {
   // فلاتر البحث
   const [searchDate, setSearchDate] = useState("");
   const [searchLandline, setSearchLandline] = useState("");
+        const vantaRef = useRef(null);
+      const [vantaEffect, setVantaEffect] = useState(null);
+    
+      useEffect(() => {
+        if (!vantaEffect && window.VANTA) {
+          setVantaEffect(
+            window.VANTA.NET({
+              el: vantaRef.current,
+          color: 0x0f172a,
+          backgroundColor: 0xeaeaea,
+          points: 8.0,
+          maxDistance: 20.0,
+          spacing: 15.0,
+            })
+          );
+        }
+        return () => {
+          if (vantaEffect) vantaEffect.destroy();
+        };
+      }, [vantaEffect]);
+
+  
 
   useEffect(() => {
     fetchPending();
@@ -23,7 +45,7 @@ export default function PendingPayments() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        "https://paynet-cdji.onrender.com/api/admin/user/pending", // نفس API البيان المالي
+        "http://localhost:5000/api/admin/user/pending", // نفس API البيان المالي
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -62,11 +84,11 @@ export default function PendingPayments() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div ref={vantaRef} className="min-h-screen bg-gray-50">
       <Navbar />
 
       <div className="p-6 max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold text-center text-gray-700 mb-8">
+        <h2 className="text-3xl font-bold text-center text-gray-700 mb-8">
           عمليات قيد التسديد
         </h2>
 
@@ -75,13 +97,13 @@ export default function PendingPayments() {
           <input
             type="text"
             placeholder="بحث برقم الهاتف الأرضي"
-            className="border p-2 rounded"
+            className="p-2 border bg-[#00000045] placeholder:text-white text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-none text-base"
             value={searchLandline}
             onChange={(e) => setSearchLandline(e.target.value)}
           />
           <input
             type="date"
-            className="border p-2 rounded"
+            className="p-2 border bg-[#00000045] placeholder:text-white text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-none text-base"
             value={searchDate}
             onChange={(e) => setSearchDate(e.target.value)}
           />
@@ -103,7 +125,7 @@ export default function PendingPayments() {
                 currentItems.map((p) => (
                   <tr
                     key={p._id}
-                    className="border-b hover:bg-gray-100 transition"
+                    className="border-b bg-[#00000050] hover:bg-gray-300 transition"
                   >
                     <td className="py-3 px-4">{p.landline}</td>
                     <td className="py-3 px-4">{p.company}</td>

@@ -26,13 +26,7 @@ export default function AdminFinancialStatement() {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "https://paynet-cdji.onrender.com/api/admin/user/allconfirmed",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        "https://paynet-1.onrender.com/api/admin/user/allconfirmed");
 
       setConfirmedPayments(res.data);
     } catch (err) {
@@ -107,6 +101,7 @@ export default function AdminFinancialStatement() {
                 <th className="py-3 px-4">السرعة</th>
                 <th className="py-3 px-4">المبلغ</th>
                 <th className="py-3 px-4">الحالة</th>
+                <th className="py-3 px-4">صاحب العملية</th>
                 <th className="py-3 px-4">تاريخ التسديد</th>
                 <th className="py-3 px-4">ملاحظات</th>
               </tr>
@@ -135,6 +130,7 @@ export default function AdminFinancialStatement() {
                         {p.status}
                       </span>
                     </td>
+                    <td className="py-3 px-4">{p.email}</td>
                     <td className="py-3 px-4">
                       {new Date(p.updatedAt || p.createdAt).toLocaleString(
                         "ar-SY",

@@ -1,8 +1,29 @@
-import React, { useState } from "react";
+import React, { useState , useEffect , useRef} from "react";
 import NavBar from "../components/NavBar";
 import axios from "axios";
-
+import InternetPaymentForm from "../components/InternetPaymentForm";
 export default function PayInternet() {
+  const vantaRef = useRef(null);
+  const [vantaEffect, setVantaEffect] = useState(null);
+  
+    useEffect(() => {
+      if (!vantaEffect && window.VANTA) {
+        setVantaEffect(
+          window.VANTA.NET({
+            el: vantaRef.current,
+            color: 0x0f172a,
+            backgroundColor: 0xeaeaea,
+            points: 8.0,
+            maxDistance: 20.0,
+            spacing: 15.0,
+          })
+        );
+      }
+      return () => {
+        if (vantaEffect) vantaEffect.destroy();
+      };
+    }, [vantaEffect]);
+  
   function parseJwt(token) {
     try {
       return JSON.parse(atob(token.split(".")[1]));
@@ -16,6 +37,8 @@ export default function PayInternet() {
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedSpeed, setSelectedSpeed] = useState("");
   const [amountToPay, setAmountToPay] = useState("");
+  const [paymentType, setPaymentType] = useState("cash"); // القيمة الافتراضية نقداً
+
 
   const calculatedAmount = amountToPay ? (amountToPay * 1.05).toFixed(2) : "";
   const isFormValid =
@@ -49,7 +72,7 @@ export default function PayInternet() {
   ];
   const speeds = [
     "",
-    "512 Mbps   السعر 13500",
+    "512 Mbps   السعر 14000",
     "1 Mbps     السعر 18500",
     "2 Mbps     السعر 24000",
     "4 Mbps     السعر 38000",
@@ -57,195 +80,79 @@ export default function PayInternet() {
     "16 Mbps   السعر  83000",
   
   ];
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (isSubmitting) return;
+  setIsSubmitting(true);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-      if (isSubmitting) return; // حماية إضافية
-      setIsSubmitting(true);
+  const token = localStorage.getItem("token");
+  const decoded = parseJwt(token);
+  const email = decoded?.email;
 
-    const token = localStorage.getItem("token");
-    const decoded = parseJwt(token);
-    const email = decoded?.email;
-
-    try {
-      const res = await axios.post(
-        "https://paynet-cdji.onrender.com/api/payment/internet",
-        { amount: amountToPay },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      await axios.post(
-        "https://paynet-cdji.onrender.com/api/savepayment/internet",
-        {
-          landline,
-          company: selectedCompany,
-          speed: selectedSpeed,
-          amount: parseFloat(amountToPay),
-          email, // ← إذا كنت بحاجة أيضًا للإيميل
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/payment/internet-full",
+      {
+        landline,
+        company: selectedCompany,
+        speed: selectedSpeed,
+        amount: parseFloat(amountToPay),
+        email,
+        paymentType,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      }
+    );
 
-      alert("تم التسديد بنجاح. الرصيد الجديد: " + res.data.newBalance);
-      setLandline("");
-      setSelectedCompany("");
-      setSelectedSpeed("");
-      setAmountToPay("");
-      window.location.reload();
+    alert("تم التسديد بنجاح. الرصيد الجديد: " + res.data.newBalance);
 
-      // يمكنك إعادة التوجيه أو تحديث الرصيد من السياق
-    } catch (err) {
-      alert(err.response?.data?.message || "حدث خطأ");
-    }finally {
-    setIsSubmitting(false); // إعادة التفعيل
+    // إعادة تعيين الحقول
+    setLandline("");
+    setSelectedCompany("");
+    setSelectedSpeed("");
+    setAmountToPay("");
+
+    // إعادة تحميل الصفحة أو تحديث الحالة حسب الحاجة
+    window.location.reload();
+
+  } catch (err) {
+    alert(err.response?.data?.message || "حدث خطأ");
+       // التوكن غير صالح، نسجل الخروج
+      localStorage.removeItem('token'); // أو حسب تخزينك للتوكن
+      window.location.href = '/login'; // إعادة توجيه لصفحة تسجيل الدخول
+  } finally {
+    setIsSubmitting(false);
   }
-  };
+};
+
   return (
-    <div>
+    <div ref={vantaRef}>
       <NavBar />
-
-      <div className="min-h-screen flex items-center justify-center bg-blue-50 p-4">
-        <form className="w-full max-w-md bg-white shadow-md rounded-xl p-6 space-y-6">
-          {/* رقم الارضي */}
-          <div className="relative">
-            <input
-              type="number"
-              value={landline}
-              onChange={(e) => setLandline(e.target.value)}
-              className="peer h-12 w-full text-base text-gray-900 bg-transparent border-b-2 border-gray-300 focus:border-blue-600 outline-none"
-              required
-            />
-            <label
-              className={`absolute text-sm text-gray-500 left-0 top-3 transform transition-all duration-300 
-              ${
-                landline
-                  ? "-translate-y-6 scale-75 text-blue-600"
-                  : "translate-y-0 scale-100"
-              }`}
-            >
-              رقم الارضي
-            </label>
-          </div>
-
-          {/* الشركة */}
-          <div className="relative">
-            <select
-              value={selectedCompany}
-              onChange={(e) => setSelectedCompany(e.target.value)}
-              className="peer h-12 w-full appearance-none text-base text-gray-900 bg-transparent border-b-2 border-gray-300 focus:border-blue-600 outline-none"
-              required
-            >
-              <option value="" disabled hidden></option>
-              {companies.map((company) => (
-                <option key={company} value={company}>
-                  {company}
-                </option>
-              ))}
-            </select>
-            <label
-              className={`absolute text-sm text-gray-500 left-0 top-3 transform transition-all duration-300 
-              ${
-                selectedCompany
-                  ? "-translate-y-6 scale-75 text-blue-600"
-                  : "translate-y-0 scale-100"
-              }`}
-            >
-              الشركة
-            </label>
-          </div>
-
-          {/* السرعة */}
-          <div className="relative">
-            <select
-              value={selectedSpeed}
-              onChange={(e) => setSelectedSpeed(e.target.value)}
-              className="peer h-12 w-full appearance-none text-base text-gray-900 bg-transparent border-b-2 border-gray-300 focus:border-blue-600 outline-none"
-              required
-            >
-              <option value="" disabled hidden></option>
-              {speeds.map((speed) => (
-                <option key={speed} value={speed}>
-                  {speed}
-                </option>
-              ))}
-            </select>
-            <label
-              className={`absolute text-sm text-gray-500 left-0 top-3 transform transition-all duration-300 
-              ${
-                selectedSpeed
-                  ? "-translate-y-6 scale-75 text-blue-600"
-                  : "translate-y-0 scale-100"
-              }`}
-            >
-              السرعة
-            </label>
-          </div>
-
-          {/* المبالغ */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* المبلغ المراد تسديده */}
-            <div className="relative">
-              <input
-                type="number"
-                value={amountToPay}
-                onChange={(e) => setAmountToPay(e.target.value)}
-                className="peer h-12 w-full text-base text-gray-900 bg-transparent border-b-2 border-gray-300 focus:border-blue-600 outline-none"
-                required
-              />
-              <label
-                className={`absolute text-sm text-gray-500 left-0 top-3 transform transition-all duration-300 
-                ${
-                  amountToPay
-                    ? "-translate-y-6 scale-75 text-blue-600"
-                    : "translate-y-0 scale-100"
-                }`}
-              >
-                المبلغ المراد تسديده
-              </label>
-            </div>
-
-            {/* المبلغ المطلوب */}
-            <div className="relative">
-              <input
-                type="number"
-                value={calculatedAmount}
-                readOnly
-                className="peer h-12 w-full text-base text-gray-900 bg-transparent border-b-2 border-gray-300 focus:border-blue-600 outline-none"
-              />
-              <label
-                className={`absolute text-sm text-gray-500 left-0 top-3 transform transition-all duration-300 
-                ${
-                  calculatedAmount
-                    ? "-translate-y-6 scale-75 text-blue-600"
-                    : "translate-y-0 scale-100"
-                }`}
-              >
-                المبلغ المطلوب
-              </label>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={!isFormValid}
-            className={`w-full font-semibold py-2.5 rounded-lg transition 
-    ${
-      isFormValid
-        ? "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-    }`}
-          >
-  {isSubmitting ? "جاري التسديد..." : "تسديد الفاتورة"}
-          </button>
-        </form>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <InternetPaymentForm
+          landline={landline}
+          setLandline={setLandline}
+          selectedCompany={selectedCompany}
+          setSelectedCompany={setSelectedCompany}
+          selectedSpeed={selectedSpeed}
+          setSelectedSpeed={setSelectedSpeed}
+          amountToPay={amountToPay}
+          setAmountToPay={setAmountToPay}
+          calculatedAmount={calculatedAmount}
+          companies={companies}
+          speeds={speeds}
+          isFormValid={isFormValid}
+          isSubmitting={isSubmitting}
+          handleSubmit={handleSubmit}
+          landNumber={"رقم الارضي"}
+          selectCompany="اختر الشركة"
+          selectSpeed="اختر السرعة"
+          paymentType={paymentType}   
+          setPaymentType={setPaymentType}  
+        />
       </div>
     </div>
   );

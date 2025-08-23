@@ -1,8 +1,32 @@
-import React, { useState } from "react";
+import React, { useState , useEffect , useRef } from "react";
 import Navbar from "../components/NavBar";
 import axios from "axios";
 
+
 export default function TransferForm() {
+
+
+          const vantaRef = useRef(null);
+      const [vantaEffect, setVantaEffect] = useState(null);
+    
+      useEffect(() => {
+        if (!vantaEffect && window.VANTA) {
+          setVantaEffect(
+            window.VANTA.NET({
+              el: vantaRef.current,
+          color: 0x0f172a,
+          backgroundColor: 0xeaeaea,
+          points: 8.0,
+          maxDistance: 20.0,
+          spacing: 15.0,
+            })
+          );
+        }
+        return () => {
+          if (vantaEffect) vantaEffect.destroy();
+        };
+      }, [vantaEffect]);
+
   function parseJwt(token) {
     try {
       return JSON.parse(atob(token.split(".")[1]));
@@ -13,7 +37,7 @@ export default function TransferForm() {
 
   const [formData, setFormData] = useState({
     name: "",
-    destination: "ماهر حبيب ضاهر",
+    destination: "ماهر حبيب ضاهر - محردة - هرم ",
     number: "0969735667",
     operator: "",
     noticeNumber: "",
@@ -21,6 +45,18 @@ export default function TransferForm() {
     date: "",
   });
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+
+    useEffect(() => {
+  const token = localStorage.getItem("token");
+  const decoded = parseJwt(token);
+  if (decoded && decoded.email) {
+    setFormData((prev) => ({ ...prev, name: decoded.email }));
+  }
+}, []);
+
+
 
 
   const handleChange = (e) => {
@@ -36,7 +72,7 @@ export default function TransferForm() {
     const token = localStorage.getItem("token");
     const decoded = parseJwt(token);
 
-    await axios.post("https://paynet-cdji.onrender.com/api/saveBalance/haram", formData, {
+    await axios.post("https://paynet-1.onrender.com/api/saveBalance/haram", formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -45,7 +81,7 @@ export default function TransferForm() {
 
     setFormData({
       name: "",
-      destination: "ماهر حبيب ضاهر",
+      destination: "ماهر حبيب ضاهر - محردة - هرم ",
       number: "0969735667",
       operator: "",
       noticeNumber: "",
@@ -57,15 +93,15 @@ export default function TransferForm() {
   };
 
   return (
-    <div>
+    <div >
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div ref={vantaRef} className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-md bg-white p-6 rounded-xl shadow-md space-y-4"
+          className="w-full max-w-md bg-[#00000050] p-6 rounded-xl shadow-md space-y-4"
           dir="rtl"
         >
-          <h2 className="text-2xl font-bold text-center text-blue-700 mb-4">
+          <h2 className="text-2xl font-bold text-center text-violet-700 mb-4">
             نموذج تحويل
           </h2>
 
@@ -75,7 +111,7 @@ export default function TransferForm() {
             placeholder="اسم المستخدم"
             value={formData.name}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
           <input
@@ -84,7 +120,7 @@ export default function TransferForm() {
             placeholder="الى"
             value={formData.destination}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
 
@@ -94,7 +130,7 @@ export default function TransferForm() {
             placeholder="الرقم"
             value={formData.number}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
 
@@ -104,7 +140,7 @@ export default function TransferForm() {
             placeholder="صاحب الاشعار"
             value={formData.operator}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
 
@@ -114,7 +150,7 @@ export default function TransferForm() {
             placeholder="رقم الإشعار"
             value={formData.noticeNumber}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
 
@@ -124,7 +160,7 @@ export default function TransferForm() {
             placeholder="المبلغ"
             value={formData.amount}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
 
@@ -133,13 +169,13 @@ export default function TransferForm() {
             type="date"
             value={formData.date}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
+            className="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold py-2 rounded-lg transition"
           >
   {isSubmitting ? "جاري التحويل..." : "تحويل"}
           </button>

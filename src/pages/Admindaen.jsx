@@ -10,7 +10,7 @@ export default function PaymentStatement() {
     const fetchPayments = async () => {
       try {
         const res = await axios.get(
-          "https://paynet-1.onrender.com/api/saveBalance/all-admin"
+          "https://paynet-1.onrender.com/api/admin/daen"
         );
         setPayments(res.data);
       } catch (error) {
@@ -28,7 +28,7 @@ useEffect(() => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "https://paynet-1.onrender.com/api/admin/confirm-payment",
+        "https://paynet-1.onrender.com/api/admin/confirm-daen",
         {
           id: payment._id,
           email: payment.name, // أو يمكن تغيير الحقل حسب اسم الحقل الحقيقي للبريد
@@ -44,13 +44,13 @@ useEffect(() => {
   };
 
   const handleConfirm = async (payment, index) => {
-    const confirmed = window.confirm("هل أنت متأكد من تعبئة الدفعة؟");
+    const confirmed = window.confirm("هل أنت متأكد من تسديد الدفعة؟");
     if (!confirmed) return;
 
     const result = await confirmPaymentInBackend(payment);
     if (result?.success) {
       setPayments((prev) =>
-        prev.map((p, i) => (i === index ? { ...p, isConfirmed: true } : p))
+        prev.map((p, i) => (i === index ? { ...p, status: true } : p))
       );
     }
   };
@@ -115,12 +115,12 @@ useEffect(() => {
                     <td className="p-3">
                       <button
                         onClick={() => handleConfirm(payment, index)}
-                        disabled={payment.isConfirmed}
+                        disabled={payment.status}
                         className={`px-3 py-1 rounded text-white font-medium ${
-                          payment.isConfirmed ? "bg-green-600" : "bg-red-600"
+                          (payment.status) ? "bg-green-600" : "bg-red-600"
                         }`}
                       >
-                        {payment.isConfirmed ? "تم التأكيد" : "تأكيد"}
+                        {payment.status ? "تم التسديد" : "دين"}
                       </button>
                       <button
                         onClick={()=>{deleterecharge(payment._id)}}

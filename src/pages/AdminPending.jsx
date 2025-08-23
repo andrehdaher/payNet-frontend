@@ -1,9 +1,26 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/NavbarAdmin";
+import { io } from "socket.io-client";
 
 export default function AdminPending() {
   const [payments, setPayments] = useState([]);
+  const [socket, setSocket] = useState(null);
+  useEffect(() => {
+    // 1. إنشاء الاتصال بالسيرفر عبر سوكيت
+    const newSocket = io("https://paynet-1.onrender.com"); // عدّل الرابط إذا لزم
+    setSocket(newSocket);
+
+    // 2. الاستماع للتحديثات من السيرفر
+    newSocket.on("pendingPaymentsUpdate", (updatedPayments) => {
+      setPayments(updatedPayments);
+    });
+
+    // 3. تنظيف الاتصال عند إغلاق المكون
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     fetchPending();
@@ -11,7 +28,9 @@ export default function AdminPending() {
 
   const fetchPending = async () => {
     try {
-      const res = await axios.get("https://paynet-cdji.onrender.com/api/admin/pending");
+      const res = await axios.get(
+        "https://paynet-1.onrender.com/api/admin/pending"
+      );
       setPayments(res.data);
     } catch (error) {
       console.error("فشل في جلب البيانات", error);
@@ -26,39 +45,54 @@ export default function AdminPending() {
     if (!confirmed) return;
 
     try {
-      await axios.patch(`https://paynet-cdji.onrender.com/api/admin/confirm/${id}`);
+      await axios.patch(
+        `https://paynet-1.onrender.com/api/admin/confirm/${id}`
+      );
       fetchPending(); // إعادة التحديث بعد التأكيد
     } catch (error) {
       alert("حدث خطأ أثناء تأكيد التسديد");
     }
   };
 
-  const rejectPayment = async (payment )=>{
-      const reason = prompt("يرجى إدخال سبب رفض العملية:");
-  if (!reason) return;
+  const startPayment = async (id) => {
+    const confirmed = window.confirm('هل انت متاكد من بدء التسديد');
 
-  try{
-    await axios.post(`https://paynet-cdji.onrender.com/api/admin/reject/${payment._id}`, {
-      email :payment.email,
-      amount: payment.amount,
-      reason,
-    })
-        alert("تم رفض العملية وإرجاع الرصيد بنجاح.");
-    fetchPending();
-  }catch{
-        alert("حدث خطأ أثناء رفض العملية");
+    if (!confirmed) return;
 
-  }
+    try {
+      await axios.patch(
+        `https://paynet-1.onrender.com/api/admin/start/${id}`
+      );
+      fetchPending(); // إعادة التحديث بعد التأكيد
+    } catch (error) {
+      alert("حدث خطأ أثناء تأكيد التسديد");
+      console.log(error)
+    }
+  };
 
-  }
+  const rejectPayment = async (payment) => {
+    const reason = prompt("يرجى إدخال سبب رفض العملية:");
+    if (!reason) return;
 
-
-
-
+    try {
+      await axios.post(
+        `https://paynet-1.onrender.com/api/admin/reject/${payment._id}`,
+        {
+          email: payment.email,
+          amount: payment.amount,
+          reason,
+        }
+      );
+      alert("تم رفض العملية وإرجاع الرصيد بنجاح.");
+      fetchPending();
+    } catch {
+      alert("حدث خطأ أثناء رفض العملية");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <Navbar/>
+      <Navbar />
       <h2 className="text-2xl font-bold text-center text-gray-700 mb-8">
         عمليات قيد الترحيل
       </h2>
@@ -67,7 +101,7 @@ export default function AdminPending() {
         <table className="min-w-full text-sm text-center text-gray-700">
           <thead className="bg-blue-600 text-white text-sm">
             <tr>
-    <th className="py-3 px-4">البريد الإلكتروني</th>
+              <th className="py-3 px-4">البريد الإلكتروني</th>
               <th className="py-3 px-4">رقم أرضي</th>
               <th className="py-3 px-4">الشركة</th>
               <th className="py-3 px-4">السرعة</th>
@@ -82,7 +116,7 @@ export default function AdminPending() {
                 key={p._id}
                 className="border-b hover:bg-gray-100 transition duration-200"
               >
-        <td className="py-3 px-4">{p.email || "غير متوفر"}</td>
+                <td className="py-3 px-4">{p.email || "غير متوفر"}</td>
                 <td className="py-3 px-4">{p.landline}</td>
                 <td className="py-3 px-4">{p.company}</td>
                 <td className="py-3 px-4">{p.speed}</td>
@@ -108,12 +142,17 @@ export default function AdminPending() {
                     تأكيد التسديد
                   </button>
                   <button
-                      onClick={() => rejectPayment(p)}
-
+                    onClick={() => rejectPayment(p)}
                     className="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 mx-1 py-1.5 rounded transition"
                   >
-رفض العملية          
-        </button>
+                    رفض العملية
+                  </button>
+                  <button
+                    onClick={() => startPayment(p._id)}
+                    className="bg-green-500 hover:bg-green-600 text-white text-sm font-semibold px-4 mx-1 py-1.5 rounded transition"
+                  >
+                    بدء التنفيذ
+                  </button>
                 </td>
               </tr>
             ))}

@@ -4,9 +4,32 @@ import HARAM from "../assets/HARAM.png"
 import SHAMKASH from "../assets/SHAMKASH.png"
 import FOAD from "../assets/FOAD.png"
 import NavBar from '../components/NavBar'
+import React, { useEffect, useState , useRef } from "react";
+
 
 
 const Balance = () => {
+          const vantaRef = useRef(null);
+      const [vantaEffect, setVantaEffect] = useState(null);
+    
+      useEffect(() => {
+        if (!vantaEffect && window.VANTA) {
+          setVantaEffect(
+            window.VANTA.NET({
+              el: vantaRef.current,
+          color: 0x0f172a,
+          backgroundColor: 0xeaeaea,
+          points: 8.0,
+          maxDistance: 20.0,
+          spacing: 15.0,
+            })
+          );
+        }
+        return () => {
+          if (vantaEffect) vantaEffect.destroy();
+        };
+      }, [vantaEffect]);
+
 
   const navigate = useNavigate();
 
@@ -38,9 +61,11 @@ const Balance = () => {
   return (
     
     
-<div className="bg-blue-50 min-h-screen">
+    <div ref={vantaRef} className="min-h-screen w-full text-white relative">
         <NavBar/>
-      <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6" dir="rtl">
+      <div  className="grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3 place-items-center"
+
+       dir="rtl">
 
         {services.map((service, idx) => (
           <ServiceCard
