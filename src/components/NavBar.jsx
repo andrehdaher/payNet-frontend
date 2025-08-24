@@ -105,16 +105,22 @@ useEffect(() => {
               <FaExchangeAlt /> عمليات قيد الترحيل
             </Link>
           </li>
-
-
+                        {role === "user-point" &&(
+            <>
           <li>
             <Link
-              to="/PaymentStatement"
+              to="/PointPayment"
               className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
             >
-              <FaFileInvoice /> البيان المالي للدفعات
+              <FaWallet /> البيان المالي للدفعات
             </Link>
           </li>
+
+            </>
+          )}
+
+
+
           
   {role === "user" && (
 <>
@@ -124,6 +130,14 @@ useEffect(() => {
               className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
             >
               <FaWallet /> تعبئة رصيد
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/PaymentStatement"
+              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
+            >
+              <FaFileInvoice /> البيان المالي للدفعات
             </Link>
           </li>
 
@@ -171,7 +185,7 @@ useEffect(() => {
             {balance !== null ? `💰 ${balance} ل.س` : "جاري التحميل..."}
           </li>
         </ul>
-
+    
         {/* Left - Logout button & Mobile toggle */}
         <div className="flex items-center gap-4">
           <div className="md:hidden">
@@ -186,7 +200,7 @@ useEffect(() => {
             <FaSignOutAlt /> تسجيل الخروج
           </button>
         </div>
-      </div>
+      </div>  
 
       {/* Mobile Menu */}
       {isOpen && (
@@ -212,6 +226,18 @@ useEffect(() => {
           >
             <FaExchangeAlt /> عمليات قيد الترحيل
           </Link>
+            
+                      {role === "user-point" &&(
+                        <>
+                                <Link
+                        to="/PointPayment"
+                        className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1"
+                      >
+                        <FaExchangeAlt /> البيان المالي للدفعات
+                      </Link>
+            
+                        </>
+                      )}
             {role === "user" && (
 <>
           <Link

@@ -31,6 +31,7 @@ import Admindaen from "./pages/Admindaen";
 import { NotificationProvider } from "./context/NotificationContext";
 import AddPoint from "./pages/AddPoint";
 import HomePoint from "./pages/HomePoint";
+import PointPayment from "./pages/PointPayment";
 import PointStatement from "./pages/PointStatement";
 
 function App() {
@@ -70,6 +71,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <PointStatement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/PointPayment"
+              element={
+                <ProtectedRoute>
+                  <PointPayment />
                 </ProtectedRoute>
               }
             />
