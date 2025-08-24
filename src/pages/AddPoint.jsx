@@ -67,13 +67,15 @@ export default function AddPoint() {
   }, []);
 
   // ✅ إضافة رصيد
-  const handelAddBalance = async (id) => {
+  const handelAddBalance = async (id , username , owner) => {
     const amount = prompt("ادخل قيمة الرصيد المطلوب إضافتها:");
     if (!amount) return;
     try {
       await axios.put(`http://localhost:5000/api/point/add-balance/${id}`, {
         amount,
         email,
+        username,
+        owner,
       });
       alert("تمت إضافة الرصيد بنجاح ✅");
       window.location.reload(); // هذه الطريقة صحيحة
@@ -127,7 +129,7 @@ export default function AddPoint() {
                   <tr key={p._id}>
                     <td className="py-3 px-4 flex justify-center gap-2">
                       <button
-                        onClick={() => handelAddBalance(p._id)}
+                        onClick={() => handelAddBalance(p._id , p.username , p.owner)}
                         className="bg-green-600 text-white px-3 py-1 rounded"
                       >
                         إضافة رصيد

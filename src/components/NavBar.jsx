@@ -107,6 +107,14 @@ useEffect(() => {
           </li>
 
 
+          <li>
+            <Link
+              to="/PaymentStatement"
+              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
+            >
+              <FaFileInvoice /> البيان المالي للدفعات
+            </Link>
+          </li>
           
   {role === "user" && (
 <>
@@ -119,14 +127,6 @@ useEffect(() => {
             </Link>
           </li>
 
-          <li>
-            <Link
-              to="/PaymentStatement"
-              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
-            >
-              <FaFileInvoice /> البيان المالي للدفعات
-            </Link>
-          </li>
 
           <li>
             <Link
@@ -136,7 +136,7 @@ useEffect(() => {
               <FaFileInvoice /> نقاط البيع الفرعية
             </Link>
           </li>
-{/* 
+
           <li>
             <Link
               to="/financial-point"
@@ -144,7 +144,15 @@ useEffect(() => {
             >
               <FaFileInvoice /> البيان المالي للنقاط الفرعية
             </Link>
-          </li> */}
+          </li>
+          <li>
+            <Link
+              to="/pointStatement"
+              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
+            >
+              <FaFileInvoice /> دفعات النقاط الفرعية
+            </Link>
+          </li>
 
           <li>
             <a
@@ -224,12 +232,18 @@ useEffect(() => {
           >
             <FaFileInvoice /> نقاط البيع الفرعية
           </Link>
-          {/* <Link
+          <Link
             to="/financial-point"
             className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1"
           >
             <FaFileInvoice /> البيان المالي للنقاط الفرعية
-          </Link> */}
+          </Link>
+          <Link
+            to="/pointStatement"
+            className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1"
+          >
+            <FaFileInvoice /> دفعات النقاط الفرعية
+          </Link>
           <a
             href="https://wa.me/963993822320"
             target="_blank"

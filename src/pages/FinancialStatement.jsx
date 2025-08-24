@@ -56,9 +56,10 @@ export default function FinancialStatement() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-          },
+          },  
         }
       );
+      console.log(res.data)
 
       setConfirmedPayments(res.data);
       setHasNewUnpaid(false);

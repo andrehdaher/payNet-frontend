@@ -19,6 +19,20 @@ export default function FinancialStatement() {
       const {hasNewUnpaid, setHasNewUnpaid } = useNotification(); // ✅ Context
   
   const [vantaEffect, setVantaEffect] = useState(null);
+  
+  function parseJwt(token) {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  const token = localStorage.getItem("token");
+  const decoded = parseJwt(token);
+  const email = decoded?.email;
+  
+
 
   useEffect(() => {
     if (!vantaEffect && window.VANTA) {
@@ -50,14 +64,16 @@ export default function FinancialStatement() {
   const fetchConfirmed = async () => {
     try {
       const token = localStorage.getItem("token");
-
+      
       const res = await axios.get(
-        "http://localhost:5000/api/admin/user/confirmed",
+        `http://localhost:5000/api/point/user/confirmed/point?emailPoint=${email}`,
+        
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
+        
       );
 
       setConfirmedPayments(res.data);
@@ -169,7 +185,7 @@ export default function FinancialStatement() {
                 <th className="py-3 px-4">الشركة</th>
                 <th className="py-3 px-4">السرعة</th>
                 <th className="py-3 px-4">المبلغ</th>
-                <th className="py-3 px-4">نوع الدفع</th>
+                <th className="py-3 px-4">نقطة البيع</th>
                 <th className="py-3 px-4">الحالة</th>
                 <th className="py-3 px-4">تاريخ التسديد</th>
                 <th className="py-3 px-4">ملاحظات</th>
@@ -191,19 +207,7 @@ export default function FinancialStatement() {
                     <td className="py-3 px-4">
                       {p.amount.toLocaleString()} ل.س
                     </td>
-                    {/* نوع الدفع - قابل للتعديل */}
-                    <td className="py-3 px-4">
-                      <select
-                        value={p.paymentType || ""}
-                        onChange={(e) =>
-                          handlePaymentTypeChange(p._id, e.target.value)
-                        }
-                        className="border rounded p-1 bg-white  text-sm"
-                      >
-                        <option value="cash">نقداً</option>
-                        <option value="credit">دين</option>
-                      </select>
-                    </td>
+                    <td className="py-3 px-4">{p.email}</td>
                     <td className="py-3 px-4">
                       <span
                         className={`px-2 py-1 rounded-full text-xs text-black font-semibold ${
