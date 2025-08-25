@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/NavBar";
 import { io } from "socket.io-client";
+import ScreenWrapper from "../components/ScreenWrapper";
+import { Card, CardContent, CardHeader } from "../components/Custom/Card";
+import { Input } from "../components/Custom/Input";
 
 export default function Astalam() {
-  const vantaRef = useRef(null);
-  const socketRef = useRef(null); // لتخزين اتصال socket
+  const socketRef = useRef(null); 
 
-  const [vantaEffect, setVantaEffect] = useState(null);
   const [astalam, setastalam] = useState(false);
   const [fatora, setfatora] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState("");
@@ -31,43 +32,23 @@ export default function Astalam() {
   useEffect(() => {
     if (fatora && fatoraData) {
       setLoading(true);
-      setCountdown(10);
+      setCountdown(5);
 
       const timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
             setLoading(false);
-            setastalam(false); // إعادة تفعيل الزر
-
+            setastalam(false); 
             return 0;
           }
-          return prev - 1; // ينقص ثانية واحدة
+          return prev - 1; 
         });
       }, 1000);
 
       return () => clearInterval(timer);
     }
   }, [fatora, fatoraData]);
-
-  // تأثير الخلفية
-  useEffect(() => {
-    if (!vantaEffect && window.VANTA) {
-      setVantaEffect(
-        window.VANTA.NET({
-          el: vantaRef.current,
-          color: 0x0f172a,
-          backgroundColor: 0xeaeaea,
-          points: 8.0,
-          maxDistance: 20.0,
-          spacing: 15.0,
-        })
-      );
-    }
-    return () => {
-      if (vantaEffect) vantaEffect.destroy();
-    };
-  }, [vantaEffect]);
 
   // الاتصال بالسيرفر
   useEffect(() => {
@@ -79,7 +60,6 @@ export default function Astalam() {
     socket.on("connect", () => {
       console.log("✅ متصل بالسيرفر");
       socket.emit("register", email);
-      console.log(email);
     });
 
     socket.on("json_message", (data) => {
@@ -152,89 +132,94 @@ export default function Astalam() {
   ];
 
   return (
-    <div ref={vantaRef} className="min-h-screen flex flex-col">
-      {/* الهيدر */}
-      <Navbar />
+    <ScreenWrapper>
+      <div>
+        <Card className={'max-w-md mx-auto'}>
+          <CardHeader>
+            <h1 className="text-3xl py-2 text-black">استعلام عن فاتورة</h1>
+          </CardHeader>
 
-      {/* المحتوى */}
-      <main className="flex-1 relative z-10 flex flex-col items-center">
-        <h1 className="text-3xl py-2 text-black">استعلام عن فاتورة</h1>
+          <CardContent className={'space-y-6'}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handelAstalam();
+              }}
+              className="space-y-6"
+            >
+              <div className="relative">
+                <label className="block mb-1 mr-3 text-sm font-medium text-foreground">
+                  اختر الشركة
+                </label>
+                <select
+                  value={selectedCompany}
+                  onChange={(e) => setSelectedCompany(e.target.value)}
+                  className="peer h-10 w-full text-foreground px-2 bg-foreground/10 border rounded-md border-foreground/50 outline-none"
+                  required
+                >
+                  {companies.map((company) => (
+                    <option key={company} value={company}>
+                      {company}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        <div
-          className="grid gap-6 p-16 sm:grid-cols-1 lg:grid-cols-1 place-items-center bg-slate-700 rounded-xl"
-          dir="rtl"
-        >
-          <h1 className="text-white">اختر الشركة</h1>
-          <select
-            onChange={(e) => setSelectedCompany(e.target.value)}
-            className="peer h-12 w-full text-white text-xl px-4 bg-transparent border-2 rounded-xl border-gray-300 focus:border-blue-600 outline-none "
-            required
+              <Input
+                label={"رقم الارضي"}
+                onChange={(e) => setLandline(e.target.value)}
+                className="peer h-12 w-full text-white text-xl px-4 bg-transparent border-2 rounded-xl border-gray-300 focus:border-blue-600 outline-none"
+                required
+                type="text"
+              />
+
+              <button
+                className={`text-white w-full py-2.5 rounded-lg ${
+                  astalam ? "bg-violet-950" : "bg-violet-600 hover:bg-violet-700"
+                }`}
+              >
+                {astalam ? "جاري الاستعلام . . ." : "استعلام عن فاتورة"}
+              </button>
+            </form>
+
+            <h1 className="text-xl text-red-500">
+              {astalam && (
+                <>
+                  الرجاء عدم مغادرة الصفحة <br />
+                  المدة المتوقعة 60 ثانية
+                </>
+              )}
+            </h1>
+          </CardContent>
+        </Card>
+
+        {fatora && (
+          <div
+            className={`max-w-md w-full mx-auto text-black place-items-center p-4 my-3 rounded-lg bg-gray-300 overflow-y-auto max-h-80`}
           >
-            <option value="" disabled hidden></option>
-            {companies.map((company) => (
-              <option className="bg-white text-black" key={company} value={company}>
-                {company}
-              </option>
-            ))}
-          </select>
-
-          <h1 className="text-white">رقم الارضي</h1>
-          <input
-            onChange={(e) => setLandline(e.target.value)}
-            className="peer h-12 w-full text-white text-xl px-4 bg-transparent border-2 rounded-xl border-gray-300 focus:border-blue-600 outline-none"
-            required
-            type="text"
-          />
-
-          <button
-            onClick={handelAstalam}
-            className={`text-white w-full py-2.5 rounded-lg ${
-              astalam ? "bg-violet-950" : "bg-violet-600 hover:bg-violet-700"
-            }`}
-          >
-            {astalam ? "جاري الاستعلام . . ." : "استعلام عن فاتورة"}
-          </button>
-
-          <h1 className="text-xl text-red-500">
-            {astalam ? (
-              <>
-                الرجاء عدم مغادرة الصفحة <br />
-                المدة المتوقعة 60 ثانية
-              </>
-            ) : (
-              ""
-            )}
-          </h1>
-        </div>
-
-        {/* الفاتورة */}
-        <div
-          className={`${
-            fatora
-              ? "max-w-md w-full mx-auto text-black place-items-center p-4 my-3 rounded-lg bg-gray-300 overflow-y-auto max-h-80"
-              : "hidden"
-          }`}
-        >
-          {loading ? (
-            <h1>الرجاء الانتظار... {countdown} ثانية</h1>
-          ) : fatoraData ? (
-            <>
-              {Object.entries(fatoraData).map(([key, value]) => (
-                <h1 key={key}>
-                  {key}: {value}
-                </h1>
-              ))}
-            </>
-          ) : (
-            <h1>لا توجد بيانات</h1>
-          )}
-        </div>
-      </main>
-
-      {/* الفوتر */}
-      <footer className="bg-gray-800 text-white text-center p-4">
-        هذا الفوتر
-      </footer>
-    </div>
+            {loading ? (
+              <h1>الرجاء الانتظار... {countdown} ثانية</h1>
+            ) : fatoraData ? (
+              <table className="table-auto border-collapse border border-gray-400 w-full text-center">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border border-gray-400 px-4 py-2">العنوان</th>
+                    <th className="border border-gray-400 px-4 py-2">القيمة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(fatoraData).map(([key, value], index) => (
+                    <tr key={index} className="hover:bg-gray-100">
+                      <td className="border border-gray-400 px-4 py-2">{key}</td>
+                      <td className="border border-gray-400 px-4 py-2">{value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : null}
+          </div>
+        )}
+      </div>
+    </ScreenWrapper>
   );
 }

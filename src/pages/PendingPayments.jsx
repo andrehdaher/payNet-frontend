@@ -1,37 +1,20 @@
 import React, { useEffect, useState , useRef} from "react";
 import axios from "axios";
 import Navbar from "../components/NavBar";
+import ScreenWrapper from "../components/ScreenWrapper";
+import { Input } from "../components/Custom/Input";
+import { Card, CardContent, CardHeader } from "../components/Custom/Card";
+import DataTable from "../components/Custom/DataTable";
 
 export default function PendingPayments() {
   const [pendingPayments, setPendingPayments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const itemsPerPage = 10;
 
   // فلاتر البحث
   const [searchDate, setSearchDate] = useState("");
   const [searchLandline, setSearchLandline] = useState("");
-        const vantaRef = useRef(null);
-      const [vantaEffect, setVantaEffect] = useState(null);
-    
-      useEffect(() => {
-        if (!vantaEffect && window.VANTA) {
-          setVantaEffect(
-            window.VANTA.NET({
-              el: vantaRef.current,
-          color: 0x0f172a,
-          backgroundColor: 0xeaeaea,
-          points: 8.0,
-          maxDistance: 20.0,
-          spacing: 15.0,
-            })
-          );
-        }
-        return () => {
-          if (vantaEffect) vantaEffect.destroy();
-        };
-      }, [vantaEffect]);
 
-  
 
   useEffect(() => {
     fetchPending();
@@ -45,7 +28,7 @@ export default function PendingPayments() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        "http://localhost:5000/api/admin/user/pending", // نفس API البيان المالي
+        "https://paynet-1.onrender.com/api/admin/user/pending", // نفس API البيان المالي
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -82,95 +65,60 @@ export default function PendingPayments() {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+  
+  const PinColumns = [
+    { key: "landline", label: "رقم أرضي" },
+    { key: "company", label: "الشركة" },
+    { key: "speed", label: "السرعة" },
+    { key: "amount", label: "المبلغ", render: (p) => `${p.amount.toLocaleString()} ل.س` },
+
+    {
+      key: "date",
+      label: "تاريخ الطلب",
+      render: (p) =>
+        new Date(p.updatedAt || p.createdAt).toLocaleString("ar-SY", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }),
+    },
+  ];
 
   return (
-    <div ref={vantaRef} className="min-h-screen bg-gray-50">
-      <Navbar />
-
-      <div className="p-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center text-gray-700 mb-8">
-          عمليات قيد التسديد
-        </h2>
-
-        {/* واجهة البحث */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="بحث برقم الهاتف الأرضي"
-            className="p-2 border bg-[#00000045] placeholder:text-white text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-none text-base"
-            value={searchLandline}
-            onChange={(e) => setSearchLandline(e.target.value)}
-          />
-          <input
-            type="date"
-            className="p-2 border bg-[#00000045] placeholder:text-white text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-none text-base"
-            value={searchDate}
-            onChange={(e) => setSearchDate(e.target.value)}
-          />
-        </div>
-
-        <div className="overflow-x-auto shadow-md rounded-lg bg-white">
-          <table className="min-w-full text-sm text-center text-gray-700">
-            <thead className="bg-yellow-600 text-white">
-              <tr>
-                <th className="py-3 px-4">رقم أرضي</th>
-                <th className="py-3 px-4">الشركة</th>
-                <th className="py-3 px-4">السرعة</th>
-                <th className="py-3 px-4">المبلغ</th>
-                <th className="py-3 px-4">تاريخ الطلب</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.length > 0 ? (
-                currentItems.map((p) => (
-                  <tr
-                    key={p._id}
-                    className="border-b bg-[#00000050] hover:bg-gray-300 transition"
-                  >
-                    <td className="py-3 px-4">{p.landline}</td>
-                    <td className="py-3 px-4">{p.company}</td>
-                    <td className="py-3 px-4">{p.speed}</td>
-                    <td className="py-3 px-4">
-                      {p.amount.toLocaleString()} ل.س
-                    </td>
-                    <td className="py-3 px-4">
-                      {new Date(p.createdAt).toLocaleString("ar-SY", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="py-6 text-gray-500">
-                    لا توجد عمليات قيد التسديد حاليًا.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* أزرار التنقل بين الصفحات */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-4 space-x-2">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => handlePageChange(index + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === index + 1
-                    ? "bg-yellow-600 text-white"
-                    : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
+    <ScreenWrapper>
+      <Card className="m-6">
+        <CardHeader>
+          <h2 className="text-3xl font-bold text-center text-gray-700">
+            عمليات قيد التسديد
+          </h2>
+        </CardHeader>
+        <CardContent>     
+          {/* واجهة البحث */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <Input
+              label={'بحث'}
+              type="text"
+              placeholder="بحث برقم الهاتف الأرضي"
+              className="p-2 border bg-[#00000045] placeholder:text-white text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-none text-base"
+              value={searchLandline}
+              onChange={(e) => setSearchLandline(e.target.value)}
+            />
+            <Input
+              label={'تاريخ'}
+              type="date"
+              className="p-2 border bg-[#00000045] placeholder:text-white text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-none text-base"
+              value={searchDate}
+              onChange={(e) => setSearchDate(e.target.value)}
+            />
           </div>
-        )}
-      </div>
-    </div>
+          <DataTable 
+            columns={PinColumns}
+            data={currentItems}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </CardContent>
+      </Card>
+    </ScreenWrapper>
   );
 }

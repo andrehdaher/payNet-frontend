@@ -105,8 +105,8 @@ const Navbar = () => {
               to="/allUser"
               className="hover:text-white hover:bg-blue-600 px-3 py-1 rounded transition"
             >
-عرض المستخدمين            
-</Link>
+              عرض المستخدمين            
+            </Link>
           </li>
         </ul>
 

@@ -53,7 +53,7 @@ export default function AddPoint() {
   const userEmail = decoded.email;
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/point/add-point?email=${userEmail}`
+        `https://paynet-1.onrender.com/api/point/add-point?email=${userEmail}`
       );
       console.log(res.data);
       setFormData(res.data);
@@ -71,7 +71,7 @@ export default function AddPoint() {
     const amount = prompt("ادخل قيمة الرصيد المطلوب إضافتها:");
     if (!amount) return;
     try {
-      await axios.put(`http://localhost:5000/api/point/add-balance/${id}`, {
+      await axios.put(`https://paynet-1.onrender.com/api/point/add-balance/${id}`, {
         amount,
         email,
       });
@@ -88,7 +88,7 @@ export default function AddPoint() {
   const handelDelete = async (id) => {
     if (!window.confirm("هل أنت متأكد من الحذف؟")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/point/delete/${id}`);
+      await axios.delete(`https://paynet-1.onrender.com/api/point/delete/${id}`);
       alert("تم حذف النقطة ✅");
       getPoint();
 

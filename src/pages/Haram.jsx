@@ -1,31 +1,29 @@
 import React, { useState , useEffect , useRef } from "react";
 import Navbar from "../components/NavBar";
 import axios from "axios";
+import ScreenWrapper from "../components/ScreenWrapper";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/Custom/Card";
+import { Input } from "../components/Custom/Input";
+import { Button } from "../components/Custom/Button";
+import { useLocation } from "react-router-dom";
+import qrImage from "../assets/QRcode.png";
 
 
 export default function TransferForm() {
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const location = useLocation()
+  const serviceType = location.state
 
-          const vantaRef = useRef(null);
-      const [vantaEffect, setVantaEffect] = useState(null);
-    
-      useEffect(() => {
-        if (!vantaEffect && window.VANTA) {
-          setVantaEffect(
-            window.VANTA.NET({
-              el: vantaRef.current,
-          color: 0x0f172a,
-          backgroundColor: 0xeaeaea,
-          points: 8.0,
-          maxDistance: 20.0,
-          spacing: 15.0,
-            })
-          );
-        }
-        return () => {
-          if (vantaEffect) vantaEffect.destroy();
-        };
-      }, [vantaEffect]);
+  const [formData, setFormData] = useState({
+    name: "",
+    destination: serviceType == "HARAM" ? "ماهر حبيب ضاهر - محردة - هرم " : serviceType == "SHAMKASH" ? "andreh daher" : "ماهر حبيب ضاهر - محردة - فؤاد ",
+    number: serviceType == "FOAD" ? "0969735667" : "0969735667",
+    operator: "",
+    noticeNumber: "",
+    amount: "",
+    date: "",
+  });
 
   function parseJwt(token) {
     try {
@@ -35,26 +33,15 @@ export default function TransferForm() {
     }
   }
 
-  const [formData, setFormData] = useState({
-    name: "",
-    destination: "ماهر حبيب ضاهر - محردة - هرم ",
-    number: "0969735667",
-    operator: "",
-    noticeNumber: "",
-    amount: "",
-    date: "",
-  });
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
 
-
-    useEffect(() => {
-  const token = localStorage.getItem("token");
-  const decoded = parseJwt(token);
-  if (decoded && decoded.email) {
-    setFormData((prev) => ({ ...prev, name: decoded.email }));
-  }
-}, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const decoded = parseJwt(token);
+    if (decoded && decoded.email) {
+      setFormData((prev) => ({ ...prev, name: decoded.email }));
+    }
+  }, []);
 
 
 
@@ -93,94 +80,101 @@ export default function TransferForm() {
   };
 
   return (
-    <div >
-      <Navbar />
-      <div ref={vantaRef} className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-md bg-[#00000050] p-6 rounded-xl shadow-md space-y-4"
-          dir="rtl"
-        >
-          <h2 className="text-2xl font-bold text-center text-violet-700 mb-4">
-            نموذج تحويل
-          </h2>
-
-          <input
-            name="name"
-            type="text"
-            placeholder="اسم المستخدم"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          <input
-            name="destination"
-            type="text"
-            placeholder="الى"
-            value={formData.destination}
-            onChange={handleChange}
-            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-
-          <input
-            name="number"
-            type="text"
-            placeholder="الرقم"
-            value={formData.number}
-            onChange={handleChange}
-            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-
-          <input
-            name="operator"
-            type="text"
-            placeholder="صاحب الاشعار"
-            value={formData.operator}
-            onChange={handleChange}
-            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-
-          <input
-            name="noticeNumber"
-            type="text"
-            placeholder="رقم الإشعار"
-            value={formData.noticeNumber}
-            onChange={handleChange}
-            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-
-          <input
-            name="amount"
-            type="number"
-            placeholder="المبلغ"
-            value={formData.amount}
-            onChange={handleChange}
-            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-
-          <input
-            name="date"
-            type="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="w-full border bg-[#00000080] text-white border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold py-2 rounded-lg transition"
-          >
-  {isSubmitting ? "جاري التحويل..." : "تحويل"}
-          </button>
-        </form>
-      </div>
-    </div>
+    <ScreenWrapper>
+      <form
+        onSubmit={handleSubmit}
+        className="w-3/4 mx-auto mt-8"
+        dir="rtl"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              تحويل اشعار
+            </CardTitle>
+          </CardHeader>
+          <CardContent className=' grid grid-cols-2 gap-2'>
+            <Input
+              name="name"
+              type="text"
+              label="اسم المستخدم"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+            
+            {
+              serviceType == 'SHAMKASH' ? 
+              <div className="text-center space-y-2">
+                <p className="font-semibold text-sm text-gray-600">امسح رمز QR التالي للتحويل إلى الرقم:</p>
+                <img src={qrImage} alt="QR Code" className="mx-auto w-40 h-40 object-contain" />
+              </div>
+              :
+              <Input
+                name="number"
+                type="text"
+                label="الرقم"
+                value={formData.number}
+                onChange={handleChange}
+                required
+              />
+            }
+            <Input
+              className='col-span-2'
+              name="destination"
+              type="text"
+              label="الى"
+              value={formData.destination}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="operator"
+              type="text"
+              label="صاحب الاشعار"
+              value={formData.operator}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="noticeNumber"
+              type="text"
+              label="رقم الإشعار"
+              value={formData.noticeNumber}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="amount"
+              type="number"
+              label="المبلغ"
+              value={formData.amount}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              name="date"
+              type="date"
+              label={'تاريخ الحوالة'}
+              value={formData.date}
+              onChange={handleChange}
+              required
+            />
+            {/*<Input
+              name="img"
+              type="file"
+              accept="image/*"
+              label={'صورة الاشعار'}
+              required
+            />*/}
+            <Button
+              type="submit"
+              className="w-full col-span-2"
+            >
+              {isSubmitting ? "جاري التحويل..." : "تحويل"}
+            </Button>
+          </CardContent>
+        </Card>
+      </form>
+    </ScreenWrapper>
   );
 }

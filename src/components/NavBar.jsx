@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useNotification } from "../context/NotificationContext";
@@ -12,247 +11,165 @@ import {
   FaSignOutAlt,
   FaWallet,
   FaFileInvoice,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const NavBar = () => {
   const [balance, setBalance] = useState(null);
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-      const {hasNewUnpaid, setHasNewUnpaid } = useNotification(); // ✅ Context
-      const [role, setRole] = useState("");
+  const { hasNewUnpaid } = useNotification();
 
-
-  
-
-  const toggleMenu = () => setIsOpen(!isOpen);
-
-function parseJwt(token) {
-  try {
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch (e) {
-    return null;
-  }
-}
-
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
-
-  const decoded = parseJwt(token);
-  if (decoded?.email) setEmail(decoded.email);
-  if (decoded?.role) setRole(decoded.role); // ✅ استخراج الدور
-
-  const fetchBalance = async () => {
+  function parseJwt(token) {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/user/balance",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setBalance(res.data.balance);
-    } catch (error) {
-      console.error("فشل في جلب الرصيد:", error);
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch {
+      return null;
     }
-  };
+  }
 
-  fetchBalance();
-}, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
+    const decoded = parseJwt(token);
+    if (decoded?.email) setEmail(decoded.email);
+    if (decoded?.role) setRole(decoded.role);
+
+    const fetchBalance = async () => {
+      try {
+        const res = await axios.get(
+          "https://paynet-1.onrender.com/api/user/balance",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setBalance(res.data.balance);
+      } catch (error) {
+        console.error("فشل في جلب الرصيد:", error);
+      }
+    };
+
+    fetchBalance();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
+  const menuItems = [
+    { to: "/", label: "الصفحة الرئيسية", icon: <FaHome /> },
+    {
+      to: "/financial",
+      label: "البيان المالي للتسديد",
+      icon: <FaMoneyBill />,
+      badge: hasNewUnpaid,
+    },
+    { to: "/pending", label: "عمليات قيد الترحيل", icon: <FaExchangeAlt /> },
+    ...(role === "user"
+      ? [
+          { to: "/balance", label: "تعبئة رصيد", icon: <FaWallet /> },
+          {
+            to: "/PaymentStatement",
+            label: "البيان المالي للدفعات",
+            icon: <FaFileInvoice />,
+          },
+          {
+            to: "/add-point",
+            label: "نقاط البيع الفرعية",
+            icon: <FaFileInvoice />,
+          },
+          {
+            external: "https://wa.me/963993822320",
+            label: "واتساب",
+            icon: <FaWhatsapp className="text-green-500" />,
+          },
+        ]
+      : []),
+  ];
+
   return (
-    <nav className="bg-gray-300 shadow-md text-slate-900" dir="rtl">
-      <div className="container mx-auto px-4 md:px-6 py-3 flex items-center justify-between relative">
-        {/* Right - اسم المستخدم */}
-        <div className="text-sm md:text-base font-medium text-violet-500">
-          {email ? `👤 ${email}` : "جاري التحميل..."}
+    <>
+      {/* زر فتح القائمة */}
+      <div className="z-40 fixed top-0 px-5 bg-muted w-full flex justify-between shadow-md">
+        <div className="p-4 border-b flex justify-center items-center gap-2">
+          <span className="font-bold text-violet-700">{email || "جاري التحميل..."}</span>
+          <span className="text-sm text-gray-600">
+            الرصيد الحالي:
+            {balance !== null ? ` ${balance} ل.س` : "جاري التحميل..."}
+          </span>
         </div>
-
-        {/* Center - Navigation Links */}
-        <ul className="hidden md:flex gap-6 items-center text-sm font-medium whitespace-nowrap">
-          <li>
-            <Link
-              to="/"
-              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
-            >
-              <FaHome /> الصفحة الرئيسية
-            </Link>
-          </li>
-
-          <li className="relative">
-            <Link
-              to="/financial"
-              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1 relative"
-            >
-              <FaMoneyBill /> البيان المالي للتسديد
-              {hasNewUnpaid && (
-                <span className="absolute -top-1 -right-2 block h-3 w-3 rounded-full bg-red-600"></span>
-              )}
-            </Link>
-          </li>
-
-          <li>
-            <Link
-              to="/pending"
-              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
-            >
-              <FaExchangeAlt /> عمليات قيد الترحيل
-            </Link>
-          </li>
-
-
-          
-  {role === "user" && (
-<>
-          <li>
-            <Link
-              to="/balance"
-              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
-            >
-              <FaWallet /> تعبئة رصيد
-            </Link>
-          </li>
-
-          <li>
-            <Link
-              to="/PaymentStatement"
-              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
-            >
-              <FaFileInvoice /> البيان المالي للدفعات
-            </Link>
-          </li>
-
-          <li>
-            <Link
-              to="/add-point"
-              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
-            >
-              <FaFileInvoice /> نقاط البيع الفرعية
-            </Link>
-          </li>
-{/* 
-          <li>
-            <Link
-              to="/financial-point"
-              className="hover:text-white hover:bg-violet-700 px-3 py-1 rounded transition flex items-center gap-1"
-            >
-              <FaFileInvoice /> البيان المالي للنقاط الفرعية
-            </Link>
-          </li> */}
-
-          <li>
-            <a
-              href="https://wa.me/963993822320"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:bg-green-700 px-3 py-1 rounded transition text-green-500 flex items-center gap-1"
-            >
-              <FaWhatsapp /> واتساب
-            </a>
-          </li>
-
-          </>
-            )}
-          <li className="text-violet-500 font-bold">
-            {balance !== null ? `💰 ${balance} ل.س` : "جاري التحميل..."}
-          </li>
-        </ul>
-
-        {/* Left - Logout button & Mobile toggle */}
-        <div className="flex items-center gap-4">
-          <div className="md:hidden">
-            <button onClick={toggleMenu} className="text-black">
-              {isOpen ? <X size={26} /> : <Menu size={26} />}
-            </button>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="hidden md:flex items-center gap-2 text-red-400 hover:bg-red-900 px-3 py-1 rounded transition"
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="h-fit my-auto text-violet-600 p-2 rounded-md hover:bg-violet-200 transition"
+        >
+          <span
+            className={`inline-block transition-transform duration-300 ease-in-out ${
+              isOpen ? "rotate-90 scale-110" : "rotate-0 scale-100"
+            }`}
           >
-            <FaSignOutAlt /> تسجيل الخروج
-          </button>
-        </div>
+            {!isOpen ? <FaBars size={20} /> : <FaTimes size={20} />}
+          </span>
+        </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-slate-800 shadow px-6 py-4 space-y-2 border-t border-slate-700 text-white">
-          <Link
-            to="/"
-            className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1"
-          >
-            <FaHome /> الصفحة الرئيسية
-          </Link>
-          <Link
-            to="/financial"
-            className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1 relative"
-          >
-            <FaMoneyBill /> البيان المالي للتسديد
-            {hasNewUnpaid && (
-              <span className="absolute top-1 right-2 block h-3 w-3 rounded-full bg-red-600"></span>
-            )}
-          </Link>
-          <Link
-            to="/pending"
-            className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1"
-          >
-            <FaExchangeAlt /> عمليات قيد الترحيل
-          </Link>
-            {role === "user" && (
-<>
-          <Link
-            to="/balance"
-            className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1"
-          >
-            <FaWallet /> تعبئة رصيد
-          </Link>
-          <Link
-            to="/PaymentStatement"
-            className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1"
-          >
-            <FaFileInvoice /> البيان المالي للدفعات
-          </Link>
-          <Link
-            to="/add-point"
-            className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1"
-          >
-            <FaFileInvoice /> نقاط البيع الفرعية
-          </Link>
-          {/* <Link
-            to="/financial-point"
-            className="block py-2 px-3 hover:bg-slate-700 rounded flex items-center gap-1"
-          >
-            <FaFileInvoice /> البيان المالي للنقاط الفرعية
-          </Link> */}
-          <a
-            href="https://wa.me/963993822320"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block py-2 px-3 hover:bg-green-700 rounded text-green-400 flex items-center gap-1"
-          >
-            <FaWhatsapp /> واتساب
-          </a>
-          </>
+      {/* NavBar */}
+      <aside
+        dir="rtl"
+        className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg border-l border-gray-200 flex flex-col transform transition-transform duration-500 z-40
+        ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+      >
+        {/* Header */}
+        <div className="p-4 border-b bg-violet-500/10 flex flex-row-reverse justify-between items-center gap-1">
+          <span className="font-bold text-foreground">{email || "جاري التحميل..."}</span>
+          <span className="text-sm text-gray-500">
+            {balance !== null ? `${balance} ل.س` : "جاري التحميل..."}
+          </span>
+        </div>
+
+        {/* Links */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+          {menuItems.map((item, i) =>
+            item.external ? (
+              <a
+                key={i}
+                href={item.external}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 p-2 rounded-md hover:bg-violet-100 transition"
+              >
+                {item.icon} {item.label}
+              </a>
+            ) : (
+              <Link
+                key={i}
+                to={item.to}
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 p-2 rounded-md hover:bg-violet-100 transition relative"
+              >
+                {item.icon} {item.label}
+                {item.badge && (
+                  <span className="absolute top-2 right-2 block h-2.5 w-2.5 rounded-full bg-red-600"></span>
+                )}
+              </Link>
+            )
           )}
-          <div className="text-sm font-semibold text-violet-300">
-            {balance !== null ? `💰 ${balance} ل.س` : "جاري التحميل..."}
-          </div>
+        </nav>
+
+        {/* Logout */}
+        <div className="p-4 border-t">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-red-400 hover:bg-red-900 px-3 py-2 rounded mt-2"
+            className="flex items-center justify-center gap-2 w-full text-red-600 hover:bg-red-100 px-3 py-2 rounded-md transition"
           >
             <FaSignOutAlt /> تسجيل الخروج
           </button>
         </div>
-      )}
-    </nav>
+      </aside>
+    </>
   );
 };
 
-export default Navbar;
+export default NavBar;

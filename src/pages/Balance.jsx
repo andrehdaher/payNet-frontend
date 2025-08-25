@@ -5,31 +5,13 @@ import SHAMKASH from "../assets/SHAMKASH.png"
 import FOAD from "../assets/FOAD.png"
 import NavBar from '../components/NavBar'
 import React, { useEffect, useState , useRef } from "react";
+import ScreenWrapper from "../components/ScreenWrapper";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/Custom/Card";
+import { Button } from "../components/Custom/Button";
 
 
 
 const Balance = () => {
-          const vantaRef = useRef(null);
-      const [vantaEffect, setVantaEffect] = useState(null);
-    
-      useEffect(() => {
-        if (!vantaEffect && window.VANTA) {
-          setVantaEffect(
-            window.VANTA.NET({
-              el: vantaRef.current,
-          color: 0x0f172a,
-          backgroundColor: 0xeaeaea,
-          points: 8.0,
-          maxDistance: 20.0,
-          spacing: 15.0,
-            })
-          );
-        }
-        return () => {
-          if (vantaEffect) vantaEffect.destroy();
-        };
-      }, [vantaEffect]);
-
 
   const navigate = useNavigate();
 
@@ -38,6 +20,7 @@ const Balance = () => {
       title: "شركة الهرم",
       description: "يمكنك الحصول على معلومات التحويل من هنا",
       image: HARAM,
+      service: 'HARAM',
       buttonText: "تعبئة رصيد",
       route: "/haram",
     },
@@ -45,40 +28,52 @@ const Balance = () => {
       title: "شام كاش",
       description: "تعبئة رصيد عن طريق شام كاش",
       image: SHAMKASH,
+      service: 'SHAMKASH',
       buttonText: "تعبئة رصيد",
-      route: "/shamcash",
+      route: "/haram",
     },
     {
       title: "شركة الفؤاد",
       description: "يمكنك االحصول على معلومات التحويل من هنا",
       image: FOAD,
+      service: 'FOAD',
       buttonText: "تعبئة رصيد",
-      route: "/foad",
+      route: "/haram",
     },
 
   ];
 
   return (
-    
-    
-    <div ref={vantaRef} className="min-h-screen w-full text-white relative">
-        <NavBar/>
-      <div  className="grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3 place-items-center"
-
-       dir="rtl">
-
+    <ScreenWrapper>
+      <div  
+        className="grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3 place-items-center"
+        dir="rtl"
+      >
         {services.map((service, idx) => (
-          <ServiceCard
-            key={idx}
-            title={service.title}
-            description={service.description}
-            image={service.image}
-            buttonText={service.buttonText}
-            onClick={() => navigate(service.route)}
-          />
+          <Card key={idx} className="">
+            <CardContent>
+              <img className="w-96 h-48 mx-auto" src={service.image} alt="" />
+            </CardContent>
+
+            <CardHeader>
+              <CardTitle>{service.title}</CardTitle>
+              <CardDescription>{service.description}</CardDescription>
+            </CardHeader>
+
+
+            <CardFooter>
+              <Button
+                className="ml-auto" 
+                variant="outline"
+                onClick={() => navigate(service.route, {state: service.service})}
+              >
+                {service.buttonText}
+              </Button>
+            </CardFooter>
+          </Card>
         ))}
       </div>
-</div>
+    </ScreenWrapper>
   );
 };
 
