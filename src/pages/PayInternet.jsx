@@ -189,6 +189,10 @@ export default function PayInternet() {
     }
   };
 
+  useEffect(()=>{
+    if(['PHONE'].includes(formType)){ setSelectedSpeed('5') }
+  }, [])
+
   return (
     <ScreenWrapper className={'min-h-screen flex items-center justify-center p-4'}>
         <Card>
