@@ -43,7 +43,6 @@ export default function FinancialStatement() {
           },  
         }
       );
-      console.log(res.data)
 
       setConfirmedPayments(res.data);
       setHasNewUnpaid(false);
