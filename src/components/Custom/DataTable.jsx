@@ -13,6 +13,7 @@ export default function DataTable({
         <thead className="bg-gray-100 text-xs uppercase text-gray-600">
           <tr>
             {columns.map((col) => (
+              col.hidden ? <></> :
               <th key={col.key} className="px-4 py-3 text-center">
                 {col.label}
               </th>
@@ -27,11 +28,22 @@ export default function DataTable({
                 className="border-b hover:bg-gray-50 transition text-center"
               >
                 {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3">
-                    {typeof col.render === "function"
-                      ? col.render(row)
-                      : row[col.key]}
-                  </td>
+                  col.hidden ? null : (
+                    <td key={col.key} className="px-4 py-3">
+                      {col.key === "createdAt" ? (
+                        // معالجة التاريخ
+                        new Date(row[col.key]).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })
+                      ) : typeof col.render === "function" ? (
+                        col.render(row)
+                      ) : (
+                        row[col.key]
+                      )}
+                    </td>
+                  )
                 ))}
               </tr>
             ))

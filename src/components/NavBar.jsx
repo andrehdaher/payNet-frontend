@@ -13,6 +13,7 @@ import {
   FaFileInvoice,
   FaBars,
   FaTimes,
+  FaUser,
 } from "react-icons/fa";
 
 const NavBar = () => {
@@ -68,6 +69,8 @@ const NavBar = () => {
       badge: hasNewUnpaid,
     },
     { to: "/pending", label: "عمليات قيد الترحيل", icon: <FaExchangeAlt /> },
+
+    // خيارات للمستخدم العادي
     ...(role === "user"
       ? [
           { to: "/balance", label: "تعبئة رصيد", icon: <FaWallet /> },
@@ -76,11 +79,16 @@ const NavBar = () => {
             label: "البيان المالي للدفعات",
             icon: <FaFileInvoice />,
           },
-          /*{
+          {
+            to: "/financial-point",
+            label: "البيان المالي للنقاط الفرعية",
+            icon: <FaFileInvoice />,
+          },
+          {
             to: "/add-point",
             label: "نقاط البيع الفرعية",
-            icon: <FaFileInvoice />,
-          },*/
+            icon: <FaUser />,
+          },
           {
             external: "https://wa.me/963993822320",
             label: "واتساب",
@@ -88,7 +96,19 @@ const NavBar = () => {
           },
         ]
       : []),
+
+    // خيارات لنقاط البيع
+    ...(role === "user-point"
+      ? [
+          {
+            to: "/PointPayment",
+            label: "البيان المالي للدفعات",
+            icon: <FaFileInvoice />,
+          },
+        ]
+      : []),
   ];
+
 
   return (
     <>
