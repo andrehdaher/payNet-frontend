@@ -9,60 +9,69 @@ export default function DataTable({
 }) {
   return (
     <div className="bg-white shadow-md rounded-xl overflow-hidden">
-      <table className="min-w-full text-sm text-gray-700">
-        <thead className="bg-gray-100 text-xs uppercase text-gray-600">
-          <tr>
-            {columns.map((col) => (
-              col.hidden ? <></> :
-              <th key={col.key} className="px-4 py-3 text-center">
-                {col.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.length > 0 ? (
-            data.map((row, idx) => (
-              <tr
-                key={idx}
-                className="border-b hover:bg-gray-50 transition text-center"
-              >
-                {columns.map((col) => (
-                  col.hidden ? null : (
-                    <td key={col.key} className="px-4 py-3">
-                      {col.key === "createdAt" ? (
-                        // معالجة التاريخ
-                        new Date(row[col.key]).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })
-                      ) : typeof col.render === "function" ? (
-                        col.render(row)
-                      ) : (
-                        row[col.key]
-                      )}
-                    </td>
-                  )
-                ))}
-              </tr>
-            ))
-          ) : (
+      {/* جعل الجدول قابل للتمرير على الشاشات الصغيرة */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm text-gray-700">
+          <thead className="bg-gray-100 text-xs uppercase text-gray-600">
             <tr>
-              <td
-                colSpan={columns.length}
-                className="py-6 text-gray-500 text-center"
-              >
-                لا توجد بيانات
-              </td>
+              {columns.map((col) =>
+                col.hidden ? null : (
+                  <th
+                    key={col.key}
+                    className="px-4 py-3 text-center whitespace-nowrap"
+                  >
+                    {col.label}
+                  </th>
+                )
+              )}
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.length > 0 ? (
+              data.map((row, idx) => (
+                <tr
+                  key={idx}
+                  className="border-b hover:bg-gray-50 transition text-center"
+                >
+                  {columns.map((col) =>
+                    col.hidden ? null : (
+                      <td
+                        key={col.key}
+                        className="px-4 py-3 whitespace-nowrap"
+                      >
+                        {col.key === "createdAt" ? (
+                          new Date(row[col.key]).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })
+                        ) : typeof col.render === "function" ? (
+                          col.render(row)
+                        ) : (
+                          row[col.key]
+                        )}
+                      </td>
+                    )
+                  )}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="py-6 text-gray-500 text-center"
+                >
+                  لا توجد بيانات
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-2 py-3">
+        <div className="flex flex-wrap justify-center items-center gap-2 py-3">
           <button
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
@@ -86,7 +95,9 @@ export default function DataTable({
           ))}
 
           <button
-            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            onClick={() =>
+              onPageChange(Math.min(totalPages, currentPage + 1))
+            }
             disabled={currentPage === totalPages}
             className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
           >
