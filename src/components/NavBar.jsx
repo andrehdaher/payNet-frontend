@@ -79,16 +79,16 @@ const NavBar = () => {
             label: "البيان المالي للدفعات",
             icon: <FaFileInvoice />,
           },
-          // {
-          //   to: "/financial-point",
-          //   label: "البيان المالي للنقاط الفرعية",
-          //   icon: <FaFileInvoice />,
-          // },
-          // {
-          //   to: "/add-point",
-          //   label: "نقاط البيع الفرعية",
-          //   icon: <FaUser />,
-          // },
+          {
+            to: "/financial-point",
+            label: "البيان المالي للنقاط الفرعية",
+            icon: <FaFileInvoice />,
+          },
+          {
+            to: "/add-point",
+            label: "نقاط البيع الفرعية",
+            icon: <FaUser />,
+          },
           {
             external: "https://wa.me/963993822320",
             label: "واتساب",
