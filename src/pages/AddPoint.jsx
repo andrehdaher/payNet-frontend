@@ -6,8 +6,10 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import DataTable from "../components/Custom/DataTable"; // ✅ تأكد إن المسار صحيح
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../components/Custom/Card";
 import { Button } from "../components/Custom/Button";
+import { useNavigate } from "react-router-dom";
 
 export default function AddPoint() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState("");
   const [formData, setFormData] = useState([]);
   const [AddPointFormId, setAddPointFormId] = useState(false);
@@ -42,7 +44,6 @@ export default function AddPoint() {
       const res = await axios.get(
         `https://paynet-1.onrender.com/api/point/add-point?email=${decoded.email}`
       );
-      console.log(res.data)
       setFormData(res.data);
     } catch (err) {
       console.error(err);
@@ -55,7 +56,7 @@ export default function AddPoint() {
 
   // ✅ إضافة رصيد
   const handelAddBalance = async (id, username, owner) => {
-    const amount = prompt("ادخل قيمة الرصيد المطلوب إضافتها:");
+    const amount = prompt("ادخل قيمة الرصيد المطلوب إضافتها   (سيتم شحن رصيده من رصيدك):");
     if (!amount) return;
 
     try {
@@ -87,35 +88,7 @@ export default function AddPoint() {
     }
   };
 
-  // ✅ الأعمدة للـ DataTable
   const columns = [
-    {
-      label: "العمليات",
-      hidden: true,
-      key: "_id",
-      Cell: ({ row }) => (
-        <div className="flex gap-2 justify-center">
-          <button
-            onClick={() =>
-              handelAddBalance(
-                row.original._id,
-                row.original.username,
-                row.original.owner
-              )
-            }
-            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-          >
-            إضافة رصيد
-          </button>
-          <button
-            onClick={() => handelDelete(row.original._id)}
-            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-          >
-            حذف
-          </button>
-        </div>
-      ),
-    },
     {
       label: "تاريخ الإنشاء",
       key: "createdAt",
@@ -125,6 +98,38 @@ export default function AddPoint() {
     { label: "الوكيل", key: "email" },
     { label: "اسم المستخدم", key: "username" },
     { label: "صاحب النقطة", key: "owner" },
+    {
+      label: "العمليات",
+      key: "action",
+      render: (row) => (
+        <div className="flex gap-2 justify-center">
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+                handelAddBalance(
+                  row._id,
+                  row.username,
+                  row.owner
+                )
+              }
+            }
+          >
+            إضافة رصيد
+          </Button>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={(e) => {
+              e.stopPropagation()
+              handelDelete(row._id)
+            }}
+          >
+            حذف
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -147,17 +152,12 @@ export default function AddPoint() {
           <DataTable
             columns={columns}
             data={formData}
-            pageSize={5} // عدد الصفوف لكل صفحة
+            pageSize={10}
+            onRowClick={row => {
+              navigate('/financial-point', {state: row})
+            }}
           />
         </CardContent>
-        <CardFooter>
-          <Button
-            className={'mr-auto'}
-            onClick={() => setAddPointFormId(true)}
-          >
-            إضافة نقطة
-          </Button>
-        </CardFooter>
       </Card>
     </ScreenWrapper>
   );

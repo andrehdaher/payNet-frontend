@@ -6,6 +6,7 @@ export default function DataTable({
   currentPage = 1,
   totalPages = 1,
   onPageChange = () => {},
+  onRowClick = () => {}, // ✅ إضافة prop جديد
 }) {
   return (
     <div className="bg-white shadow-md rounded-xl overflow-hidden">
@@ -31,7 +32,8 @@ export default function DataTable({
               data.map((row, idx) => (
                 <tr
                   key={idx}
-                  className="border-b hover:bg-gray-50 transition text-center"
+                  onClick={() => onRowClick(row)} // ✅ استدعاء الدالة عند الضغط
+                  className="border-b hover:bg-gray-50 transition text-center cursor-pointer"
                 >
                   {columns.map((col) =>
                     col.hidden ? null : (

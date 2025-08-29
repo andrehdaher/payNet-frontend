@@ -6,6 +6,7 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import DataTable from "../components/Custom/DataTable";
 import { Input } from "../components/Custom/Input";
 import { Card, CardCon, CardContent, CardHeader } from "../components/Custom/Card";
+import { useLocation } from "react-router-dom";
 
 
 
@@ -13,6 +14,8 @@ export default function FinancialStatement() {
   const [confirmedPayments, setConfirmedPayments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const location = useLocation()
+  const pointData = location.state
 
   // فلاتر البحث
   const [searchDate, setSearchDate] = useState("");
@@ -66,6 +69,7 @@ export default function FinancialStatement() {
 
   // تصفية البيانات حسب الفلاتر
   const filteredPayments = confirmedPayments.filter((p) => {
+    const pointname = p.email.includes(pointData?.owner);
     const landlineMatch = p.landline.includes(searchLandline);
     const statusMatch = searchStatus ? p.status === searchStatus : true;
     const statusPayment = paymentFilter
@@ -76,7 +80,7 @@ export default function FinancialStatement() {
         searchDate
       : true;
 
-    return landlineMatch && statusMatch && dateMatch && statusPayment;
+    return pointname && landlineMatch && statusMatch && dateMatch && statusPayment;
   });
 
   // حساب الصفحات الحالية بعد التصفية
@@ -134,7 +138,7 @@ export default function FinancialStatement() {
       <Card className="m-6">
         <CardHeader>
           <h2 className="text-3xl font-bold text-center text-gray-700">
-            البيان المالي
+            البيان المالي ل{pointData?.owner}
           </h2>
         </CardHeader>
         <CardContent>
@@ -190,6 +194,9 @@ export default function FinancialStatement() {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={handlePageChange}
+            onRowClick={(r)=>{
+              console.log(r)
+            }}
           />
         </CardContent>
       </Card>

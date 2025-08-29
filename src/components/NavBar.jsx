@@ -118,7 +118,7 @@ const NavBar = () => {
           <span className="font-bold text-violet-700">{email || "جاري التحميل..."}</span>
           <span className="text-sm text-gray-600">
             الرصيد الحالي:
-            {balance !== null ? ` ${balance} ل.س` : "جاري التحميل..."}
+            {balance !== null ? ` ${balance.toFixed(2)} ل.س` : "جاري التحميل..."}
           </span>
         </div>
         <button
@@ -145,7 +145,7 @@ const NavBar = () => {
         <div className="p-4 border-b bg-violet-500/10 flex flex-row-reverse justify-between items-center gap-1">
           <span className="font-bold text-foreground">{email || "جاري التحميل..."}</span>
           <span className="text-sm text-gray-500">
-            {balance !== null ? `${balance} ل.س` : "جاري التحميل..."}
+            {balance !== null ? `${balance.toFixed(2)} ل.س` : "جاري التحميل..."}
           </span>
         </div>
 
