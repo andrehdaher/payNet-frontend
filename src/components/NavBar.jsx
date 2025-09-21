@@ -14,6 +14,7 @@ import {
   FaBars,
   FaTimes,
   FaUser,
+  FaStickyNote,
 } from "react-icons/fa";
 
 const NavBar = () => {
@@ -88,6 +89,11 @@ const NavBar = () => {
             to: "/add-point",
             label: "نقاط البيع الفرعية",
             icon: <FaUser />,
+          },
+          {
+            to: "/notebooks",
+            label: "الارقام المحفوظة",
+            icon: <FaStickyNote />,
           },
           {
             external: "https://wa.me/963993822320",

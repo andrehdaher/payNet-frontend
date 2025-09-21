@@ -20,6 +20,7 @@ const Astalam = React.lazy(() => import("./pages/Astalam"));
 const Haram = React.lazy(() => import("./pages/Haram"));
 const PaymentStatement = React.lazy(() => import("./pages/PaymentStatement"));
 const FinancialPoint = React.lazy(() => import("./pages/FinancialPoint"));
+const Notebooks = React.lazy(() => import("./pages/Notebooks"));
 
 
 export const routesConfig = [
@@ -35,6 +36,7 @@ export const routesConfig = [
   { path: "/balance", element: <ProtectedRoute><Balance /></ProtectedRoute> },
   { path: "/financial", element: <ProtectedRoute><FinancialStatement /></ProtectedRoute> },
   { path: "/pending", element: <ProtectedRoute><PendingPayments /></ProtectedRoute> },
+  { path: "/notebooks", element: <Notebooks><Notebooks /></Notebooks> },
 
   { path: "/adminpending", element: <ProtectedRoute allowedRoles={["admin"]}><AdminPending /></ProtectedRoute> },
   { path: "/allUser", element: <ProtectedRoute allowedRoles={["admin"]}><GetUser /></ProtectedRoute> },
